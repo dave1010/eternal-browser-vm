@@ -27,6 +27,19 @@ Useful main-project links:
 - A browser with WebAssembly and `OffscreenCanvas`
 - Enough memory for the fixed 1.5 GiB guest address space
 
+On Debian or Ubuntu, install the build and server dependencies with:
+
+```sh
+sudo apt update
+sudo apt install clang lld-18 make python3
+```
+
+Install Node.js as well to run the tests:
+
+```sh
+sudo apt install nodejs
+```
+
 ## Build and Run
 
 ```sh
