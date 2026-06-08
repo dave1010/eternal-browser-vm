@@ -1,26 +1,46 @@
 # Eternal Browser VM
 
-This repository contains the browser port of the
-[Eternal Software Initiative (ESI)](https://www.eternal-software.org) virtual
-machine. It is a companion to the
-[main Eternal repository](https://github.com/adriancable/eternal), which
+This repository contains a browser port of the
+[Eternal Software Initiative (ESI)](https://www.eternal-software.org) virtual machine.
+
+It runs capsules produced by the main project and allows loading compressed capsules by URL.
+
+The project includes:
+
+- a port of the ESI C VM (`vm_asm.c`), which is compiled to WebAssembly with Clang.
+- a Web Worker (`worker.js`), which renders the framebuffer through `OffscreenCanvas`, and sends console output to the page
+- `main.js`, which
+  - loads the worker and VM
+  - loads and decompresses "capsules"
+  - listens for Keyboard events, maps them and sends them to the VM
+  - renders the canvas and console
+- a baic HTML page to host the whole thing
+
+
+## [➡️  Open the VM in your browser ⬅️](https://vm.dave.engineer/)
+
+## Background information
+
+The [main Eternal repository](https://github.com/adriancable/eternal)
 contains the ESI architecture specification, LLVM toolchain, Linux port,
 runtimes, reference VM, and tools for building self-contained software
 capsules.
 
-The browser VM compiles the C interpreter directly to WebAssembly, runs it in a
-Web Worker, renders the framebuffer through `OffscreenCanvas`, and sends
-console output to the page. It runs capsules produced by the main project; it
-does not include the toolchain or capsule build system.
+This browser port does not include the toolchain or capsule build system.
 
 Useful main-project links:
 
 - [Project overview and build instructions](https://github.com/adriancable/eternal#readme)
 - [ESI machine architecture reference](https://github.com/adriancable/eternal/blob/main/docs/machine_architecture.md)
 - [Reference VM](https://github.com/adriancable/eternal/blob/main/vm/vm.c)
-- [Example Linux capsule](https://github.com/adriancable/eternal/raw/refs/heads/main/capsules/vmlinux.bootimage.xz)
 
-## Requirements
+## Screenshots
+
+| Linux | Doom |
+| --- | --- |
+| ![Linux running in the Eternal Browser VM](img/linux.png) | ![Doom running in the Eternal Browser VM](img/doom.png) |
+
+## Build requirements
 
 - Clang and wasm-ld with the `wasm32` target
 - Python 3 or another static HTTP server
@@ -50,9 +70,12 @@ make serve
 Open `http://localhost:8000`, load one of the linked Linux, Mandelbrot, or Pong
 capsules, enter a capsule URL, or select a local `.bootimage` or `.bootimage.xz`,
 and press Start. Remote servers must permit cross-origin browser requests.
+
 Loading a remote capsule updates the address bar with a shareable
 `?capsule=<URL>` link; opening that link loads and starts the capsule. Click the
-framebuffer before using the keyboard. Capsules can be built or downloaded from
+framebuffer before using the keyboard.
+
+Capsules can be built or downloaded from
 the [main Eternal repository](https://github.com/adriancable/eternal).
 
 Run the small interpreter smoke test with:
