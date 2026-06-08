@@ -40,6 +40,15 @@ Useful main-project links:
 | --- | --- |
 | ![Linux running in the Eternal Browser VM](img/linux.png) | ![Doom running in the Eternal Browser VM](img/doom.png) |
 
+## How does it work?
+
+```c
+mem[(uint32_t)b] -= mem[(uint32_t)a];
+if (mem[(uint32_t)b] <= 0) {
+    pc = (uint32_t)c;
+}
+```
+
 ## Build requirements
 
 - Clang and wasm-ld with the `wasm32` target
