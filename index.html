@@ -19,12 +19,23 @@
       </header>
 
       <section class="controls" aria-label="VM controls">
-        <label class="file-button">
-          Load capsule
-          <input id="capsule" type="file" accept=".bootimage,.xz,application/octet-stream" disabled>
-        </label>
-        <button id="start" disabled>Start</button>
-        <button id="stop" disabled>Stop</button>
+        <div class="control-row">
+          <label class="file-button">
+            Load local capsule
+            <input id="capsule" type="file" accept=".bootimage,.xz,application/octet-stream" disabled>
+          </label>
+          <button data-capsule-name="Linux capsule" data-capsule-url="https://raw.githubusercontent.com/adriancable/eternal/refs/heads/main/capsules/vmlinux.bootimage.xz" disabled>Load Linux</button>
+          <button data-capsule-name="Mandelbrot capsule" data-capsule-url="https://raw.githubusercontent.com/ioccc-src/winner/master/2025/cable/mandelbrot.bootimage" disabled>Load Mandelbrot</button>
+          <button data-capsule-name="Pong capsule" data-capsule-url="https://raw.githubusercontent.com/ioccc-src/winner/master/2025/cable/pong.bootimage" disabled>Load Pong</button>
+          <button id="start" disabled>Start</button>
+          <button id="stop" disabled>Stop</button>
+        </div>
+        <form id="capsule-url-form" class="url-loader">
+          <label for="capsule-url">Capsule URL</label>
+          <input id="capsule-url" type="url" placeholder="https://example.com/capsule.bootimage.xz" required disabled>
+          <button id="load-url" type="submit" disabled>Load URL</button>
+          <span>Creates a shareable <code>?capsule=...</code> link. The server must allow CORS.</span>
+        </form>
         <span>Click the display before using the keyboard.</span>
       </section>
 

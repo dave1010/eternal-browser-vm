@@ -20,7 +20,8 @@ main {
 }
 
 header,
-.controls {
+.control-row,
+.url-loader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -70,15 +71,22 @@ a {
 }
 
 .controls {
-  justify-content: flex-start;
-  flex-wrap: wrap;
+  display: grid;
+  gap: 12px;
   padding: 12px;
   border: 1px solid #29302c;
   background: #101412;
 }
 
+.control-row,
+.url-loader {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
 button,
-.file-button {
+.file-button,
+input[type="url"] {
   appearance: none;
   border: 1px solid #56645c;
   border-radius: 2px;
@@ -90,7 +98,14 @@ button,
   cursor: pointer;
 }
 
+input[type="url"] {
+  flex: 1 1 24rem;
+  min-width: 12rem;
+  cursor: text;
+}
+
 button:disabled,
+.url-loader input:disabled,
 .file-button:has(input:disabled) {
   cursor: not-allowed;
   opacity: 0.4;
@@ -98,6 +113,10 @@ button:disabled,
 
 .file-button input {
   display: none;
+}
+
+.url-loader label {
+  font-size: 0.8rem;
 }
 
 canvas {

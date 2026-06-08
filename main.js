@@ -1,9 +1,18 @@
 const canvas = document.querySelector("#screen");
 const capsuleInput = document.querySelector("#capsule");
+const capsuleUrlForm = document.querySelector("#capsule-url-form");
+const capsuleUrlInput = document.querySelector("#capsule-url");
+const loadUrlButton = document.querySelector("#load-url");
+const remoteCapsuleButtons = document.querySelectorAll("[data-capsule-url]");
 const startButton = document.querySelector("#start");
 const stopButton = document.querySelector("#stop");
 const status = document.querySelector("#status");
 const consoleOutput = document.querySelector("#console");
+
+const queryCapsuleUrl = new URL(location.href).searchParams.get("capsule");
+let startAfterLoad = false;
+
+if (queryCapsuleUrl) capsuleUrlInput.value = queryCapsuleUrl;
 
 const worker = new Worker("./worker.js", { type: "module" });
 const offscreen = canvas.transferControlToOffscreen();
@@ -15,6 +24,23 @@ worker.postMessage(
 function setStatus(text, kind = "") {
   status.textContent = text;
   status.dataset.kind = kind;
+}
+
+function disableCapsuleControls(disabled) {
+  capsuleInput.disabled = disabled;
+  capsuleUrlInput.disabled = disabled;
+  loadUrlButton.disabled = disabled;
+  for (const button of remoteCapsuleButtons) button.disabled = disabled;
+}
+
+function setCapsuleQuery(url = "") {
+  const pageUrl = new URL(location.href);
+  if (url) {
+    pageUrl.searchParams.set("capsule", url);
+  } else {
+    pageUrl.searchParams.delete("capsule");
+  }
+  history.replaceState(null, "", pageUrl);
 }
 
 function appendConsole(text) {
@@ -30,12 +56,22 @@ worker.onmessage = (event) => {
 
   if (message.type === "ready") {
     setStatus(`Ready. ${(message.memoryBytes / 2 ** 30).toFixed(1)} GiB guest memory allocated.`);
-    capsuleInput.disabled = false;
+    disableCapsuleControls(false);
+    if (queryCapsuleUrl) {
+      startAfterLoad = true;
+      loadCapsuleUrl(queryCapsuleUrl, "shared capsule");
+    }
   } else if (message.type === "loaded") {
     setStatus(`Loaded ${(message.bytes / 2 ** 20).toFixed(1)} MiB capsule.`);
+    disableCapsuleControls(false);
     startButton.disabled = false;
     stopButton.disabled = true;
     consoleOutput.textContent = "";
+    if (startAfterLoad) {
+      startAfterLoad = false;
+      worker.postMessage({ type: "start" });
+      canvas.focus();
+    }
   } else if (message.type === "console") {
     appendConsole(message.text);
   } else if (message.type === "status") {
@@ -44,6 +80,7 @@ worker.onmessage = (event) => {
     stopButton.disabled = !message.running;
   } else if (message.type === "error") {
     setStatus(message.message, "error");
+    disableCapsuleControls(false);
   }
 };
 
@@ -55,25 +92,72 @@ capsuleInput.addEventListener("change", async () => {
   const file = capsuleInput.files[0];
   if (!file) return;
 
+  capsuleUrlInput.value = "";
+  setCapsuleQuery();
+  await loadCapsule(file, file.name);
+});
+
+for (const button of remoteCapsuleButtons) {
+  button.addEventListener("click", async () => {
+    capsuleUrlInput.value = button.dataset.capsuleUrl;
+    setCapsuleQuery(button.dataset.capsuleUrl);
+    await loadCapsuleUrl(button.dataset.capsuleUrl, button.dataset.capsuleName);
+  });
+}
+
+capsuleUrlForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const url = capsuleUrlInput.value.trim();
+  setCapsuleQuery(url);
+  await loadCapsuleUrl(url, "URL capsule");
+});
+
+async function loadCapsuleUrl(url, name) {
   try {
+    const parsedUrl = new URL(url, location.href);
+    if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+      throw new Error("Capsule URL must use HTTP or HTTPS.");
+    }
+
+    disableCapsuleControls(true);
+    startButton.disabled = true;
+    stopButton.disabled = true;
+    setStatus(`Downloading ${name}...`);
+    const response = await fetch(parsedUrl);
+    if (!response.ok) {
+      throw new Error(`Unable to download ${name}: ${response.status}`);
+    }
+    await loadCapsule(response, name, parsedUrl.pathname.toLowerCase().endsWith(".xz"));
+  } catch (error) {
+    startAfterLoad = false;
+    setStatus(error.message || String(error), "error");
+    disableCapsuleControls(false);
+  }
+}
+
+async function loadCapsule(source, name, compressed = name.toLowerCase().endsWith(".xz")) {
+  try {
+    disableCapsuleControls(true);
     startButton.disabled = true;
     stopButton.disabled = true;
 
     let buffer;
-    if (file.name.toLowerCase().endsWith(".xz")) {
-      setStatus(`Decompressing ${file.name}...`);
-      buffer = await decompressXz(file);
+    if (compressed) {
+      setStatus(`Decompressing ${name}...`);
+      buffer = await decompressXz(source.body || source.stream());
     } else {
-      setStatus(`Loading ${file.name}...`);
-      buffer = await file.arrayBuffer();
+      setStatus(`Loading ${name}...`);
+      buffer = await source.arrayBuffer();
     }
 
     setStatus(`Loading ${(buffer.byteLength / 2 ** 20).toFixed(1)} MiB capsule...`);
     worker.postMessage({ type: "load", buffer }, [buffer]);
   } catch (error) {
+    startAfterLoad = false;
     setStatus(error.message || String(error), "error");
+    disableCapsuleControls(false);
   }
-});
+}
 
 startButton.addEventListener("click", () => {
   worker.postMessage({ type: "start" });
@@ -125,12 +209,11 @@ function browserScancode(code) {
   return 0;
 }
 
-async function decompressXz(file) {
+async function decompressXz(stream) {
   const xz = globalThis["xz-decompress"];
   if (!xz?.XzReadableStream) {
     throw new Error("XZ decoder failed to load.");
   }
 
-  const stream = new xz.XzReadableStream(file.stream());
-  return new Response(stream).arrayBuffer();
+  return new Response(new xz.XzReadableStream(stream)).arrayBuffer();
 }

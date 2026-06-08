@@ -34,10 +34,13 @@ make
 make serve
 ```
 
-Open `http://localhost:8000`, select a `.bootimage` or `.bootimage.xz`, and
-press Start. Click the framebuffer before using the keyboard. Capsules can be
-built or downloaded from the
-[main Eternal repository](https://github.com/adriancable/eternal).
+Open `http://localhost:8000`, load one of the linked Linux, Mandelbrot, or Pong
+capsules, enter a capsule URL, or select a local `.bootimage` or `.bootimage.xz`,
+and press Start. Remote servers must permit cross-origin browser requests.
+Loading a remote capsule updates the address bar with a shareable
+`?capsule=<URL>` link; opening that link loads and starts the capsule. Click the
+framebuffer before using the keyboard. Capsules can be built or downloaded from
+the [main Eternal repository](https://github.com/adriancable/eternal).
 
 Run the small interpreter smoke test with:
 
