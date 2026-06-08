@@ -1,0 +1,143 @@
+:root {
+  color-scheme: dark;
+  font-family: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  background: #090b0c;
+  color: #d9e0dc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 32px;
+}
+
+main {
+  width: min(100%, 1040px);
+  margin: 0 auto;
+}
+
+header,
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+header {
+  margin-bottom: 24px;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  letter-spacing: -0.08em;
+}
+
+h2 {
+  margin: 24px 0 8px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #7d8c84;
+}
+
+a {
+  color: inherit;
+}
+
+.controls span,
+#status {
+  color: #91a199;
+  font-size: 0.8rem;
+}
+
+#status {
+  max-width: 34rem;
+  text-align: right;
+}
+
+#status[data-kind="error"] {
+  color: #ff8177;
+}
+
+.controls {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  padding: 12px;
+  border: 1px solid #29302c;
+  background: #101412;
+}
+
+button,
+.file-button {
+  appearance: none;
+  border: 1px solid #56645c;
+  border-radius: 2px;
+  padding: 9px 12px;
+  background: #18201c;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+button:disabled,
+.file-button:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.file-button input {
+  display: none;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 16px;
+  border: 1px solid #39443e;
+  background: #000;
+  image-rendering: pixelated;
+}
+
+canvas:focus {
+  outline: 2px solid #a3c9b6;
+  outline-offset: 3px;
+}
+
+pre {
+  min-height: 12rem;
+  max-height: 26rem;
+  overflow: auto;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid #29302c;
+  background: #050706;
+  white-space: pre-wrap;
+  color: #b8c9c0;
+}
+
+@media (max-width: 720px) {
+  body {
+    padding: 16px;
+  }
+
+  header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  #status {
+    text-align: left;
+  }
+}

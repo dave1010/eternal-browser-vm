@@ -1,0 +1,26 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y clang lld make
+      - name: Build and test
+        run: make test
+      - name: Download Linux capsule
+        run: |
+          curl --fail --location --retry 3 \
+            --output /tmp/vmlinux.bootimage.xz \
+            https://raw.githubusercontent.com/adriancable/eternal/main/capsules/vmlinux.bootimage.xz
+      - name: Test XZ Linux capsule
+        run: make test-xz CAPSULE=/tmp/vmlinux.bootimage.xz

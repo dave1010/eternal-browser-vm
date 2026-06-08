@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ESI Browser VM</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>Browser VM</h1>
+          <p>
+            <a href="https://github.com/dave1010/eternal-vm-browser">Github</a>
+          </p>
+        </div>
+        <p id="status">Allocating guest memory and loading WebAssembly...</p>
+      </header>
+
+      <section class="controls" aria-label="VM controls">
+        <label class="file-button">
+          Load capsule
+          <input id="capsule" type="file" accept=".bootimage,.xz,application/octet-stream" disabled>
+        </label>
+        <button id="start" disabled>Start</button>
+        <button id="stop" disabled>Stop</button>
+        <span>Click the display before using the keyboard.</span>
+      </section>
+
+      <canvas id="screen" width="800" height="512" tabindex="0" aria-label="ESI framebuffer"></canvas>
+
+      <section>
+        <h2>Console</h2>
+        <pre id="console" aria-live="polite"></pre>
+      </section>
+    </main>
+    <script src="./vendor/xz-decompress.min.js"></script>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
